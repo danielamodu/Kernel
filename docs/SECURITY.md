@@ -1,0 +1,106 @@
+# Security review (findings to date — nothing invented)
+
+Scope: our contracts + clients. TapeOut itself is out of scope except where we
+rely on its verified behavior (cited per finding).
+
+## 1. Permissionless TapeOut bypass (protocol fact, not a bug)
+
+Anyone can call the factory directly and skip registry + router entirely
+(`docs/PROTOCOL.md` §6: four bypass paths). Consequence: every guarantee below
+is scoped to "flows that go through our contracts". Language guardrails in
+`docs/PHASE3.md` §10 / `docs/PHASE4.md` §10 are load-bearing — violating them in
+copy would be the actual vulnerability (false assurance).
+
+## 2. Registry assertion model
+
+Anyone can register any slot; the registry proves priority + terms commitment,
+not authorship. Mitigations: content binding (hash must match live bytes to
+count as verified), permanent event trail, registrant-only mutation. Residual:
+impersonating registrations are possible; disputes resolve off-chain by
+`TapedOut` timestamps + signatures (same model as the reference provenance
+packages in Phase 0 research).
+
+## 3. Netlist hash verification
+
+Every trust decision compares `keccak256(netlist(refCpu, refId))` read in the
+execution transaction (router) or at verify time (scripts) against the record.
+A mismatched record is distrusted (`mismatch`), never used. Formatter risk:
+keccak (lineage) vs SHA-256 (Phase 1 fingerprints) are different conventions —
+kept separate, labeled, never interchanged.
+
+## 4. Terms commitment
+
+`termsHash = keccak256(canonical JSON)`; canonical bytes pinned in tests
+(byte-exact golden string). Changing any field changes the hash; the router
+requires nonzero terms (stricter than the registry, which permits unpublished).
+Off-chain terms documents are re-hashed by verifiers, never trusted by reference.
+
+## 5. Stale registry handling
+
+Router reads registry + TapeOut state inside the execution tx: no staleness
+window by construction. Preflight quotes can stale → execution fails closed on
+`WrongValue` (tested: price doubled between quote and execution reverts, then
+succeeds at the fresh price).
+
+## 6. One-way deactivation
+
+`deactivate` is permanent (tombstone). Rationale: a flappable `active` flag would
+make "registered" meaningless across the preflight/execution gap. Cost: a
+mistaken deactivation strands the slot (documented, accepted for minimality).
+
+## 7. Payment atomicity
+
+Single-tx EVM rollback: pay → mint → tapeout → NFT-forward → events all succeed
+or all revert. Proven in-process: failing mint/tapeout leaves payee balances
+unchanged with zero logs. No partial-payment state exists anywhere.
+
+## 8. Reentrancy
+
+Bool mutex (no dependency); payees are untrusted. A reentering payee's inner
+call reverts → outer payment fails → whole tx reverts (tested with a griefer
+contract). No callbacks, no hooks, no pull-flows (rejected: breaks atomic proof).
+
+## 9. Duplicate dependency handling
+
+Dedupe by slot key in netlist order, on-chain and off-chain identically. One
+payment per unique slot even with N identical REF records (tested, incl.
+2^255-price cases). Over-counting is impossible by construction, not by policy.
+
+## 10. Malformed REF handling
+
+Parser rejects truncation/unknown opcodes/oversize input/over-count records
+with distinct custom errors, before any value moves. Caps (8 kB netlist,
+16 REFs) bound loop gas. Forward-reference checking stays tapeout's job;
+the router needs structure + identity + pins only.
+
+## 11. Recursion depth
+
+Off-chain resolver: iterative DFS, visited classification, explicit
+cycle/depth/missing reports, never silent drops (tested incl. A→B→C→A).
+On-chain router: single-level (direct deps) by documented design decision —
+no unbounded on-chain recursion exists to exploit.
+
+## 12. Forced native token
+
+No receive/fallback (direct sends revert). Selfdestruct-forced dust is the
+accepted residual risk; exact-value accounting leaves no residuals by
+construction. Contract holds no inventory (material minted per-tx, NFT
+forwarded same-tx).
+
+## 13. Router failure / revert behavior
+
+One custom error per cause (`WrongValue` carries required-vs-sent); preflight
+codes map 1:1 so failures are diagnosable before funding. NFT-forward failure
+(e.g. contract payer without receiver) reverts atomically — including payment.
+
+## 14. Findings from testing worth keeping
+
+- Existence must not ride on `block.timestamp != 0` (in-process EVM caught
+  this): explicit `exists` flag added, same storage cost.
+- Never destructure a `bytes` return (`const [raw] = await eval(...)` yields
+  `'0'`): single helpers `packInputs`/`unpackOutputs` with regression tests.
+- `0X`-prefix tolerance bugs (twice): normalize, don't reject, with tests.
+- LATCH.d may reference future signals (official decoder never checks):
+  lineage parser accepts; Phase 1 codec intentionally stricter (documented).
+- PowerShell `>` redirection writes UTF-16: artifacts are generated by scripts
+  writing their own files (utf8), never by shell redirect.

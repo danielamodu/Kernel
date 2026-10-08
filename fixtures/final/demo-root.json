@@ -1,0 +1,44 @@
+{
+  "status": "PREPARED -- NOT YET TAPED OUT ON MAINNET",
+  "name": "demo-root-trace-ref",
+  "description": "Canonical demo: one REF to live TRACE circuit #1 (X Layer 196), taped onto the TRACE processor itself (no creation fee, 0 own transistors).",
+  "chainId": 196,
+  "targetProcessor": "0x7761ce17a2e75c6910f1d5a77e6f66cd9ca1274a",
+  "netlist": "0x027761ce17a2e75c6910f1d5a77e6f66cd9ca1274a00000000000000010402000002000003000004000005",
+  "nIn": 4,
+  "nOut": 2,
+  "netlistKeccak": "0x046f2badd2b6700e531cbd0ea2ab68a6dde05131f8098aecfa1e07426066da8e",
+  "gates": {
+    "nand": 0,
+    "latch": 0,
+    "ref": 1
+  },
+  "dependencies": [
+    {
+      "processor": "0x7761ce17a2e75c6910f1d5a77e6f66cd9ca1274a",
+      "circuitId": "1",
+      "identityKey": "tapeout:v1:196:0x7761ce17a2e75c6910f1d5a77e6f66cd9ca1274a:1",
+      "keyHash": "0x1101b7fda93495f606b4ee008f95a1fff76ccf12ad790a308810118e93a06c9b",
+      "netlistHashExpected": "0x0ea38cb443c03f7f3f45d3239687851ff653fdc0257a057af8abdf6b91ff0942",
+      "netlistHashSource": "LIVE-READ 2026 (re-verify at activation; circuits are immutable so it cannot change)",
+      "payeeExpected": "0x1d207352dd708498cada1524eb4b36b5fa178886",
+      "priceWeiExpected": "500000000000000",
+      "termsExpected": {
+        "version": 1,
+        "model": "single-license",
+        "priceWei": "500000000000000",
+        "currency": "OKB",
+        "attributionRequired": true,
+        "note": "Canonical demo: TRACE circuit #1 via licensed-router path."
+      },
+      "termsHash": "0xd8e97954e72ecc3b4ce037e45269320757712ae48d2cdcce22e40bea72e946f2"
+    }
+  ],
+  "expectedLicensePriceWei": "500000000000000",
+  "expectedTapeoutFeeWei": "1300000000000000",
+  "expectedTotalWei": "1800000000000000",
+  "lineageHash": "0x02335455db6d818f112813e1141b01d8d5130df5edc41c690704dd5c031af82f",
+  "lineageHashNote": "PREPARED from expected registration values; the router recomputes and emits it on-chain at activation -- they must match exactly.",
+  "broadcast": "BLOCKED -- funding required (see docs/ACTIVATION_RUNBOOK.md)"
+}
+
