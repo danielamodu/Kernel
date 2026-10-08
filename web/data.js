@@ -21,7 +21,7 @@ const KERNEL_SNAPSHOT = Object.freeze({
   }),
   ip: Object.freeze({
     // Canonical registered computational IP: TRACE circuit #1.
-    demoName: 'TRACE Growth Circuit #1',
+    demoName: 'TRACE Core v1',
     demoDescription: 'Turns public pool observations into transparent presentation milestones: a discovery entry and a public-progress showcase. 8 NAND gates, 4 inputs, 2 outputs.',
     processor: '0x7761cE17a2e75C6910f1D5a77E6F66CD9Ca1274a',
     circuitId: '1',
