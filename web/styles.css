@@ -1,0 +1,91 @@
+/* Kernel — quiet developer-infrastructure aesthetic. System type, compact
+ * rhythm, signal over decoration. Desktop-first, responsive. */
+:root {
+  --bg: #0c0e12;
+  --panel: #13161c;
+  --line: #232833;
+  --ink: #e8eaf0;
+  --muted: #9aa1b2;
+  --accent: #7dd3a8;
+  --accent-dim: #1d3a2d;
+  --warn: #e8b44f;
+  --bad: #e8746a;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  --sans: -apple-system, 'Segoe UI', Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; }
+a { color: var(--accent); }
+main { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+.top { display: flex; align-items: center; gap: 18px; max-width: 880px; margin: 0 auto; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.brand { font-weight: 700; font-size: 20px; color: var(--ink); text-decoration: none; letter-spacing: 0.02em; }
+.top nav { display: flex; gap: 14px; margin-left: 8px; }
+.top nav a { color: var(--muted); text-decoration: none; font-size: 14px; }
+.top nav a.on, .top nav a:hover { color: var(--ink); }
+.net { margin-left: auto; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 20px; padding: 2px 10px; }
+h1 { font-size: 40px; line-height: 1.15; margin: 8px 0 12px; letter-spacing: -0.01em; }
+h2 { font-size: 28px; margin: 6px 0 8px; }
+h3 { font-size: 17px; margin: 26px 0 8px; color: var(--ink); border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+h4 { margin: 0 0 6px; }
+.lede { color: var(--muted); font-size: 17px; max-width: 620px; }
+.muted { color: var(--muted); font-size: 13.5px; }
+.btn { display: inline-block; border: 1px solid var(--line); color: var(--ink); background: var(--panel); border-radius: 8px; padding: 9px 18px; text-decoration: none; font-size: 14px; cursor: pointer; }
+.btn.primary { background: var(--accent-dim); border-color: #2c5a44; color: #c9f0da; }
+.btn:hover { border-color: var(--accent); }
+.wbtn { margin-left: 4px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer; }
+.cta, .row { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+.flow { display: grid; gap: 2px; margin: 28px 0; max-width: 520px; }
+.flow div { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; }
+.flow div b { display: block; font-size: 12px; letter-spacing: 0.08em; color: var(--accent); }
+.flow div span { font-size: 14px; color: var(--muted); }
+.flow i { text-align: center; color: var(--muted); font-style: normal; }
+.liveproof { border-left: 3px solid var(--accent); padding: 8px 14px; background: var(--panel); border-radius: 0 8px 8px 0; font-size: 14px; }
+.cards { display: grid; gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+.card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.card-top h3 { border: 0; margin: 0; padding: 0; }
+.facts { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; margin: 10px 0; }
+.facts b { font-weight: 600; }
+.pill { display: inline-block; font-size: 12px; border-radius: 20px; padding: 2px 10px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.pill.ok { color: #b9f0d2; border-color: #2c5a44; background: #12291e; }
+.pill.bad { color: #f3b3ac; border-color: #5c2f2b; background: #2b1512; }
+.kv { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-bottom: 1px dotted var(--line); font-size: 14px; }
+.kv .k { color: var(--muted); flex-shrink: 0; }
+.kv .v { text-align: right; overflow-wrap: anywhere; }
+.mono, code { font-family: var(--mono); font-size: 12.5px; background: #0a0c10; border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; }
+.compose { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; margin: 16px 0; }
+.part { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.part b { display: block; }
+.part span { font-size: 13px; color: var(--muted); }
+.plus { align-self: center; font-size: 22px; color: var(--muted); }
+.depbox { border: 1px solid #2c5a44; background: #101a14; border-radius: 10px; padding: 16px; margin: 14px 0; }
+.dep-head { font-size: 12px; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; }
+.checks { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13.5px; color: #b9f0d2; margin: 8px 0; }
+.tech { margin: 12px 0; border: 1px solid var(--line); border-radius: 8px; }
+.tech summary { cursor: pointer; padding: 9px 14px; font-size: 13.5px; color: var(--muted); }
+.tech-body { padding: 4px 14px 14px; font-size: 13.5px; }
+.alert { border-radius: 8px; padding: 12px 16px; font-size: 14px; margin: 12px 0; }
+.alert.bad { background: #2b1512; border: 1px solid #5c2f2b; }
+.alert.ok { background: #12291e; border: 1px solid #2c5a44; }
+.alert.muted { background: var(--panel); border: 1px solid var(--line); }
+.warn { color: var(--warn); font-size: 13.5px; }
+.tree { margin: 18px 0 18px 6px; font-size: 15px; }
+.tnode { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; max-width: 460px; }
+.tnode.root { border-color: #2c5a44; }
+.tnode.leaf { border-style: dashed; }
+.tnode b { display: block; }
+.tnode span { font-size: 13px; color: var(--muted); }
+.tedge { padding: 2px 0 2px 24px; color: var(--muted); font-size: 13px; }
+.note { border-left: 3px solid var(--line); padding: 6px 12px; color: var(--muted); font-size: 14px; }
+footer { max-width: 880px; margin: 0 auto; padding: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+footer a { color: var(--muted); }
+@media (max-width: 640px) {
+  h1 { font-size: 30px; }
+  main { padding: 20px 14px 60px; }
+  .top { flex-wrap: wrap; gap: 10px; }
+  .compose { grid-template-columns: 1fr; }
+  .plus { text-align: center; }
+  .kv { flex-direction: column; gap: 2px; }
+  .kv .v { text-align: left; }
+  .net { display: none; }
+}
