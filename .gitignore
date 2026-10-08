@@ -1,0 +1,8 @@
+node_modules/
+.env
+mnemonic*
+*.mnemonic
+state/
+*.log
+reports/
+build/
