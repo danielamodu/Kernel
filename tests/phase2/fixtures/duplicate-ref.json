@@ -1,0 +1,11 @@
+{
+  "label": "SYNTHETIC",
+  "kind": "duplicate",
+  "note": "Two REF records to the same slot: expect 1 node, 2 edges.",
+  "netlist": "0x0211111111111111111111111111111111111111110000000000000005010100000202111111111111111111111111111111111111111100000000000000050101000003",
+  "nIn": 2,
+  "nOut": 2,
+  "sha256": "0x6fa0abf4cf821cbe4a2c04b7779f01b3cc1ee9bf600f39a3a4be9dfa52f0eb84",
+  "expectUniqueSlots": 1,
+  "expectEdges": 2
+}

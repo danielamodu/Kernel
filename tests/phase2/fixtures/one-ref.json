@@ -1,0 +1,17 @@
+{
+  "label": "SYNTHETIC",
+  "kind": "one-ref",
+  "note": "Root with a single REF to a fake processor. Dependency is NOT on any chain.",
+  "netlist": "0x0000000200000302111111111111111111111111111111111111111100000000000000070201000002000004",
+  "nIn": 2,
+  "nOut": 1,
+  "sha256": "0x7494e19c5757e37df4a7427bf459737a8774c726fff299dcb2443c9e0c45f49d",
+  "expectRefs": [
+    {
+      "processor": "0x1111111111111111111111111111111111111111",
+      "circuitId": "7",
+      "nIns": 2,
+      "nOut": 1
+    }
+  ]
+}

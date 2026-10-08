@@ -1,0 +1,13 @@
+{
+  "label": "SYNTHETIC",
+  "kind": "missing",
+  "note": "Dependency absent from the fetch map: must appear in `missing`, never dropped.",
+  "root": {
+    "processor": "0x1111111111111111111111111111111111111111",
+    "circuitId": 50,
+    "netlist": "0x02333333333333333333333333333333333333333300000000000003e70101000002",
+    "nIn": 1,
+    "nOut": 1
+  },
+  "circuits": {}
+}

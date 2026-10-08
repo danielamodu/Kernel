@@ -1,0 +1,42 @@
+{
+  "label": "SYNTHETIC",
+  "kind": "malformed",
+  "note": "Each entry must be REJECTED by parseRefGate (reason noted).",
+  "cases": [
+    {
+      "name": "bad-opcode",
+      "hex": "0x037761ce17a2e75c6910f1d5a77e6f66cd9ca1274a00000000000000010402000002000003000004000005",
+      "reason": "not a REF record"
+    },
+    {
+      "name": "zero-address",
+      "hex": "0x02000000000000000000000000000000000000000000000000000000010402000002000003000004000005",
+      "reason": "processor address is zero"
+    },
+    {
+      "name": "id-zero",
+      "hex": "0x027761ce17a2e75c6910f1d5a77e6f66cd9ca1274a00000000000000000402000002000003000004000005",
+      "reason": "circuit id is 0"
+    },
+    {
+      "name": "nins-mismatch-trailing",
+      "hex": "0x027761ce17a2e75c6910f1d5a77e6f66cd9ca1274a00000000000000010402000002000003000004",
+      "reason": "truncated pins (declared nIns=4, fewer bytes)"
+    },
+    {
+      "name": "trailing-bytes",
+      "hex": "0x027761ce17a2e75c6910f1d5a77e6f66cd9ca1274a0000000000000001040200000200000300000400000500",
+      "reason": "trailing bytes"
+    },
+    {
+      "name": "odd-hex",
+      "hex": "0x022",
+      "reason": "malformed hex"
+    },
+    {
+      "name": "empty",
+      "hex": "0x",
+      "reason": "empty input"
+    }
+  ]
+}

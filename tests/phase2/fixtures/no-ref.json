@@ -1,0 +1,9 @@
+{
+  "label": "SYNTHETIC",
+  "kind": "no-ref",
+  "note": "Phase 1 AND circuit (local build; never taped out). Zero REF gates.",
+  "netlist": "0x0000000200000300000004000004",
+  "nIn": 2,
+  "nOut": 1,
+  "sha256": "0x53c134b474d83082cb134bbe2e7e126d698a866452ca8e317ea618931debd3cf"
+}
