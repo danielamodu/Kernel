@@ -82,14 +82,28 @@ if (window.ethereum) {
   window.ethereum.on?.('chainChanged', () => window.location.reload());
 }
 
-/* ---------- shell ---------- */
+/* ---------- shell: sidebar rail (drawer on mobile) ---------- */
 function nav(active) {
-  const item = (hash, label) => `<a href="${hash}" class="${active === hash ? 'on' : ''}">${label}</a>`;
+  const item = (hash, label, ico) => `<a href="${hash}" class="${active === hash || (hash === '#/compose' && active === '#/review') ? 'on' : ''}"><span class="ico">${ico}</span>${label}</a>`;
   const dot = live.loading ? pill(null, 'checking chain…') : live.ok ? pill(true, `live · ${live.block}`) : pill(null, 'snapshot');
-  return `<header class="top"><a class="brand" href="#/"><img class="logo" src="./assets/kernel-mark.png" alt="Kernel mark" width="26" height="26">Kernel</a><nav>${item('#/explore', 'Explore')}${item('#/compose', 'Compose')}${item('#/my', 'My Kernel')}</nav><span class="net">X Layer · 196</span><span title="Chain-data freshness">${dot}</span><button id="walletBtn" class="wbtn">${wallet.account ? trunc(wallet.account) : 'Connect wallet'}</button></header>`;
+  return `<aside class="sidebar">
+    <a class="brand" href="#/"><img class="logo" src="./assets/kernel-mark.png" alt="Kernel mark" width="28" height="28">Kernel</a>
+    <nav class="snav">${item('#/explore', 'Explore', '▦')}${item('#/compose', 'Compose', '◈')}${item('#/my', 'My Kernel', '◔')}</nav>
+    <div class="side-foot">
+      <span class="chainbadge" title="Chain-data freshness">X Layer · 196 · ${live.loading ? 'checking…' : live.ok ? `live ${live.block}` : 'snapshot'}</span>
+      <button id="walletBtn" class="btn btn-outline btn-sm wbtn">${wallet.account ? trunc(wallet.account) : 'Connect wallet'}</button>
+    </div>
+  </aside><div class="scrim" id="scrim"></div>`;
+}
+function topbar() {
+  const dot = live.loading ? pill(null, 'checking…') : live.ok ? pill(true, `live ${live.block}`) : pill(null, 'snapshot');
+  return `<div class="topbar"><button class="btn btn-ghost btn-icon" id="hamBtn" aria-label="Open navigation">☰</button><a class="brand" href="#/"><img class="logo" src="./assets/kernel-mark.png" alt="Kernel mark" width="24" height="24">Kernel</a><span style="margin-left:auto">${dot}</span></div>`;
 }
 function footer() {
-  return `<footer>Kernel · application-level attribution for composable computation · <a href="#/provenance/trace-2">provenance model</a> · TapeOut is permissionless; Kernel never claims to prevent direct use.</footer>`;
+  return `<footer><span>Kernel · application-level attribution for composable computation</span><a href="#/provenance/trace-2">provenance model</a></footer>`;
+}
+function copyBtn(value, label = 'Copy') {
+  return `<button class="copybtn" data-copy="${esc(value)}">${esc(label)}</button>`;
 }
 
 /* ---------- views ---------- */
@@ -189,7 +203,7 @@ function vReview() {
   let action = '';
   if (st.phase === 'idle') {
     action = wallet.account
-      ? `<button class="btn primary" id="tapeBtn">License &amp; Tape Out — 0.0018 OKB</button><p class="warn">X Layer mainnet — this spends real OKB from ${mono(trunc(wallet.account))}.</p>`
+      ? `<button class="btn primary btn-lg" id="reviewBtn">Review &amp; confirm — 0.0018 OKB</button><p class="warn">X Layer mainnet — this spends real OKB from ${mono(trunc(wallet.account))}.</p>`
       : `<button class="btn primary" id="connectBtn2">Connect wallet to continue</button>`;
   } else if (st.phase === 'failed') {
     action = `<div class="alert bad">Failed: ${esc(st.error)} <button class="btn" id="retryBtn">Back</button></div>`;
@@ -215,6 +229,24 @@ function vReview() {
 }
 
 const txState = { phase: 'idle', hash: '', error: '' };
+function openConfirm() {
+  const ip = D.ip, c = D.composition;
+  UI.dialog({
+    title: 'Confirm license & tape out',
+    sub: 'Exactly one transaction. Anything else aborts the whole operation.',
+    bodyHTML:
+      kv('To (router)', `${mono(trunc(D.router.address))} ${'<button class="copybtn" data-copy="' + D.router.address + '">Copy</button>'}`) +
+      kv('Function', mono('licenseAndTapeout(target, netlist, 4, 2)')) +
+      kv('License → payee', `${mono(trunc(ip.payee))} · 0.0005 OKB`) +
+      kv('TapeOut fee', '0.0013 OKB') +
+      kv('Total value', '<b>0.0018 OKB exact</b>') +
+      `<p class="muted">Calldata <code>${esc(c.calldata.slice(0, 66))}…</code> (${(c.calldata.length - 2) / 2}B). Sent with value 0.0018 OKB on X Layer (196). The router reverts unless every check passes.</p>`,
+    actions: [
+      { label: 'Cancel', kind: '' },
+      { label: 'Sign & send', kind: 'primary', onClick: () => doTapeOut() },
+    ],
+  });
+}
 async function doTapeOut() {
   txState.phase = 'signing'; txState.error = ''; render();
   try {
@@ -286,8 +318,8 @@ function vProvenance() {
   ${tech('Technical proof',
     kv('Processor', mono(D.trace.processor)) +
     kv('Circuit ID', '#2') +
-    kv('Netlist hash', mono(D.composition.netlistKeccak)) +
-    kv('Lineage hash', mono(D.composition.lineageHash)) +
+    kv('Netlist hash', `${mono(D.composition.netlistKeccak)} <button class="copybtn" data-copy="${D.composition.netlistKeccak}">Copy</button>`) +
+    kv('Lineage hash', `${mono(D.composition.lineageHash)} <button class="copybtn" data-copy="${D.composition.lineageHash}">Copy</button>`) +
     kv('Terms hash', mono(ip.termsHash)) +
     kv('License transaction', link(txUrl(r.tx), trunc(r.tx))) +
     kv('TapeOut transaction', link(txUrl(r.tx), trunc(r.tx)) + ' <span class="muted">(same atomic tx)</span>') +
@@ -317,13 +349,18 @@ const routes = {
 function render() {
   const hash = window.location.hash || '#/';
   const view = routes[hash] || routes['#/'];
-  document.getElementById('app').innerHTML = nav(hash) + `<main>${view()}</main>` + footer();
+  document.getElementById('app').innerHTML = `<div class="shell">${nav(hash)}<div class="maincol">${topbar()}<main>${view()}</main>${footer()}</div></div>`;
+  document.body.classList.remove('nav-open');
   const wb = document.getElementById('walletBtn');
   if (wb) wb.onclick = connectWallet;
+  const ham = document.getElementById('hamBtn');
+  if (ham) ham.onclick = () => UI.toggleNav();
+  const scrim = document.getElementById('scrim');
+  if (scrim) scrim.onclick = () => UI.toggleNav(false);
   const bind = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
   bind('connectBtn2', connectWallet);
   bind('connectBtn3', connectWallet);
-  bind('tapeBtn', doTapeOut);
+  bind('reviewBtn', openConfirm);
   bind('addIpBtn', () => { composeState.added = true; composeState.lineageOpen = false; render(); });
   bind('removeIpBtn', () => { composeState.added = false; composeState.lineageOpen = false; render(); });
   bind('lineageBtn', () => { composeState.lineageOpen = !composeState.lineageOpen; render(); });
@@ -331,5 +368,9 @@ function render() {
   bind('retryBtn', () => { txState.phase = 'idle'; txState.error = ''; render(); });
 }
 window.addEventListener('hashchange', render);
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest ? e.target.closest('[data-copy]') : null;
+  if (btn && btn.dataset.copy) UI.copy(btn.dataset.copy);
+});
 refreshLive().then(render);
 setInterval(async () => { await refreshLive(); if ((window.location.hash || '#/') !== '#/compose' || txState.phase === 'idle') render(); }, 30000);
