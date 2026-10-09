@@ -1,0 +1,14 @@
+{
+  "name": "trace-core",
+  "displayName": "TRACE Core",
+  "description": "Reusable pool-observation presentation circuit (4 inputs, 2 outputs, 8 NAND gates). Turns public pool observations into transparent presentation milestones.",
+  "versions": [
+    {
+      "version": "1.0.0",
+      "chainId": 196,
+      "processor": "0x7761ce17a2e75c6910f1d5a77e6f66cd9ca1274a",
+      "circuitId": "1",
+      "note": "Canonical demo IP. Registered on-chain (see docs/PHASE3.md for tx). Circuit is immutable; this entry only ever points at #1."
+    }
+  ]
+}
