@@ -62,10 +62,16 @@ async function preparePublish({
     fail('payee required: pass payeeOverride, set package.publisher, or fetch must expose owner');
   }
 
-  // 6. Registry pre-check (already registered? live hash still matching?).
+  // 6. Registry pre-check. ANY existing record blocks a fresh register():
+  // active => duplicate (contract reverts AlreadyRegistered); inactive =>
+  // permanent tombstone that also occupies the key (same revert). Publishing
+  // over either would burn gas on a guaranteed revert, so fail here instead.
   const existing = await lookupRegistry(slot).catch(() => null);
   if (existing && existing.active) {
     fail(`slot already registered (active) — update/deactivate first: ${slot}`);
+  }
+  if (existing) {
+    fail(`slot holds an inactive (tombstone) record and cannot be re-registered: ${slot}`);
   }
 
   // 7. Register calldata (value 0: register() is non-payable).
@@ -99,7 +105,9 @@ async function preparePublish({
 async function executePublish(plan, { broadcast, registry }) {
   if (!plan || !plan.registerCalldata) throw new Error('publish: prepared plan required');
   if (typeof broadcast !== 'function') throw new Error('publish: broadcast executor required');
-  if (!registry) throw new Error('publish: registry address required');
+  if (typeof registry !== 'string' || !/^0[xX][0-9a-fA-F]{40}$/.test(registry)) {
+    throw new Error('publish: registry address required (0x + 40 hex)');
+  }
   return broadcast({ to: registry, data: plan.registerCalldata, value: '0' });
 }
 

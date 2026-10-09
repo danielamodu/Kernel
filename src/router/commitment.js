@@ -26,11 +26,19 @@ function computeLineageHash({ targetCpu, nIn, nOut, netlist, deps }) {
     if (!/^0[xX][0-9a-fA-F]{64}$/.test(d.netlistHash)) throw new Error(`commitment: dep ${i} bad netlistHash`);
     if (!/^0[xX][0-9a-fA-F]{40}$/.test(d.payee)) throw new Error(`commitment: dep ${i} bad payee`);
     if (!/^0[xX][0-9a-fA-F]{64}$/.test(d.termsHash)) throw new Error(`commitment: dep ${i} bad termsHash`);
+    let priceWei;
+    try {
+      if (typeof d.priceWei !== 'string') throw new Error('not a string');
+      priceWei = BigInt(d.priceWei).toString();
+      if (BigInt(priceWei) < 0n) throw new Error('negative');
+    } catch (e) {
+      throw new Error(`commitment: dep ${i} bad priceWei (${/not a string|negative/.test(e.message) ? e.message : 'not a uint'})`);
+    }
     return {
       keyHash: '0x' + d.keyHash.slice(2).toLowerCase(),
       netlistHash: '0x' + d.netlistHash.slice(2).toLowerCase(),
       payee: '0x' + d.payee.slice(2).toLowerCase(),
-      priceWei: BigInt(d.priceWei).toString(),
+      priceWei,
       termsHash: '0x' + d.termsHash.slice(2).toLowerCase(),
     };
   });

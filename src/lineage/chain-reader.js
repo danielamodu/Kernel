@@ -32,9 +32,16 @@ async function mods() {
 }
 
 function isAbsenceError(e) {
-  // eth_call reverts for nonexistent circuits / EOAs without code: clean "missing".
+  // ONLY contract-level absence counts as "missing": reverts, empty-returndata
+  // decodes, and bad input. Transport problems (timeouts, refused connections,
+  // rate limits, HTTP errors) MUST propagate so callers can distinguish
+  // "circuit doesn't exist" from "RPC is down" — collapsing them caused silent
+  // misclassification of outages as missing circuits.
   const msg = String((e && (e.shortMessage || e.message)) || e || '');
-  return /revert|CALL_EXCEPTION|missing revert data|bad address|invalid address|BAD_DATA|overflow|timeout/i.test(msg)
+  if (/timeout|timed out|network error|fetch failed|socket hang|econnrefused|econnreset|enotfound|429|502|503|504|body timeout|aborted/i.test(msg)) {
+    return false;
+  }
+  return /revert|CALL_EXCEPTION|missing revert data|bad address|invalid address|BAD_DATA|overflow|execution reverted|no circuit/i.test(msg)
     || e?.code === 'CALL_EXCEPTION'
     || e?.code === 'BAD_DATA';
 }
@@ -107,4 +114,4 @@ async function fetchCircuitForResolver({ processor, circuitId }) {
   return { netlist: c.netlist, nIn: c.nIn, nOut: c.nOut, netlistHash: c.netlistHash };
 }
 
-module.exports = { getChain, getProcessor, getCircuit, getDirectRefs, fetchCircuitForResolver };
+module.exports = { getChain, getProcessor, getCircuit, getDirectRefs, fetchCircuitForResolver, isAbsenceError };
