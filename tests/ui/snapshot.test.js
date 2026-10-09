@@ -69,4 +69,21 @@ describe('UI snapshot consistency', () => {
     assert.ok(D.result.block > D.router.deployBlock && D.router.deployBlock > D.ip.registrationBlock);
     assert.equal(BigInt(D.result.payeeDeltaWei).toString(), D.ip.priceWei);
   });
+
+  it('brand assets exist and are wired (logo, favicon, theme)', () => {
+    for (const f of ['assets/kernel-mark.png', 'assets/favicon.png', 'assets/apple-touch-icon.png', 'assets/kernel-lockup.png']) {
+      const st = fs.statSync(path.join(ROOT, 'web', f));
+      assert.ok(st.size > 1000, `${f} unexpectedly small`);
+    }
+    const html = fs.readFileSync(path.join(ROOT, 'web', 'index.html'), 'utf8');
+    assert.ok(html.includes('rel="icon"') && html.includes('assets/favicon.png'));
+    assert.ok(html.includes('rel="apple-touch-icon"'));
+    assert.ok(html.includes('#1B17FF'), 'theme-color must match the logo blue');
+    const css = fs.readFileSync(path.join(ROOT, 'web', 'styles.css'), 'utf8');
+    assert.ok(css.includes('#1b17ff') || css.includes('#1B17FF'), 'brand blue in theme');
+    assert.ok(!css.includes('#7dd3a8'), 'old green accent must be gone');
+    const app = fs.readFileSync(path.join(ROOT, 'web', 'app.js'), 'utf8');
+    assert.ok(app.includes('assets/kernel-mark.png'), 'header brand mark');
+    assert.ok(app.includes('assets/kernel-lockup.png'), 'hero lockup');
+  });
 });
