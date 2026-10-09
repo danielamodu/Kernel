@@ -8,7 +8,7 @@
   },
   "scripts": {
     "pretest": "npm run phase3:compile",
-    "test": "node --test tests/phase1/tapeout-proof.test.js tests/phase1/audit.test.js tests/phase2/ref.test.js tests/phase2/netlist.test.js tests/phase2/identity.test.js tests/phase2/resolver.test.js tests/phase3/registry.test.js tests/phase3/terms.test.js tests/phase3/attribution.test.js tests/phase4/preflight.test.js tests/phase4/payment.test.js tests/phase4/lineage-commitment.test.js tests/phase4/router.test.js tests/ui/snapshot.test.js tests/kernel/versions.test.js tests/kernel/package.test.js tests/kernel/store.test.js tests/kernel/deps.test.js tests/kernel/manifest.test.js tests/kernel/verify.test.js tests/kernel/receipt.test.js tests/kernel/publish.test.js tests/kernel/provenance.test.js tests/kernel/index.test.js",
+    "test": "node --test tests/phase1/tapeout-proof.test.js tests/phase1/audit.test.js tests/phase2/ref.test.js tests/phase2/netlist.test.js tests/phase2/identity.test.js tests/phase2/resolver.test.js tests/phase3/registry.test.js tests/phase3/terms.test.js tests/phase3/attribution.test.js tests/phase4/preflight.test.js tests/phase4/payment.test.js tests/phase4/lineage-commitment.test.js tests/phase4/router.test.js tests/ui/snapshot.test.js tests/kernel/versions.test.js tests/kernel/package.test.js tests/kernel/store.test.js tests/kernel/deps.test.js tests/kernel/manifest.test.js tests/kernel/verify.test.js tests/kernel/receipt.test.js tests/kernel/publish.test.js tests/kernel/provenance.test.js tests/kernel/index.test.js tests/kernel/hardening.test.js",
     "phase3:compile": "node scripts/phase3/compile.mjs",
     "phase3:deploy": "node scripts/phase3/deploy-registry.mjs",
     "phase3:dry-run": "node scripts/phase3/deploy-registry.mjs --dry-run",
