@@ -86,7 +86,7 @@ if (window.ethereum) {
 function nav(active) {
   const item = (hash, label) => `<a href="${hash}" class="${active === hash ? 'on' : ''}">${label}</a>`;
   const dot = live.loading ? pill(null, 'checking chain…') : live.ok ? pill(true, `live · ${live.block}`) : pill(null, 'snapshot');
-  return `<header class="top"><a class="brand" href="#/">Kernel</a><nav>${item('#/explore', 'Explore')}${item('#/compose', 'Compose')}${item('#/my', 'My Kernel')}</nav><span class="net">X Layer · 196</span><span title="Chain-data freshness">${dot}</span><button id="walletBtn" class="wbtn">${wallet.account ? trunc(wallet.account) : 'Connect wallet'}</button></header>`;
+  return `<header class="top"><a class="brand" href="#/"><img class="logo" src="./assets/kernel-mark.png" alt="Kernel mark" width="26" height="26">Kernel</a><nav>${item('#/explore', 'Explore')}${item('#/compose', 'Compose')}${item('#/my', 'My Kernel')}</nav><span class="net">X Layer · 196</span><span title="Chain-data freshness">${dot}</span><button id="walletBtn" class="wbtn">${wallet.account ? trunc(wallet.account) : 'Connect wallet'}</button></header>`;
 }
 function footer() {
   return `<footer>Kernel · application-level attribution for composable computation · <a href="#/provenance/trace-2">provenance model</a> · TapeOut is permissionless; Kernel never claims to prevent direct use.</footer>`;
@@ -95,6 +95,7 @@ function footer() {
 /* ---------- views ---------- */
 function vHome() {
   return `<section class="hero">
+    <img class="lockup" src="./assets/kernel-lockup.png" alt="Kernel — the IP layer for composable computation" width="1197" height="330">
     <h1>Build on computation you can trust.</h1>
     <p class="lede">Kernel lets developers publish reusable computational IP, license it into new circuits, and prove exactly where that computation came from.</p>
     <div class="cta"><a class="btn primary" href="#/explore">Explore Computational IP</a><a class="btn" href="#/compose">Build a Circuit</a></div>
