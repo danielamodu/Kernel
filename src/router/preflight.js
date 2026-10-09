@@ -40,7 +40,11 @@ async function preflight({
 }) {
   const failures = [];
   if (!/^0[xX][0-9a-fA-F]{40}$/.test(targetCpu || '')) {
-    return { allowed: false, failures: [fail('BAD_TARGET', `bad targetCpu: ${targetCpu}`)] };
+    return {
+      allowed: false, dependencies: [], totalPriceWei: '0', lineageHash: null,
+      manufacture: null, own: { nand: 0, latch: 0 },
+      failures: [fail('BAD_TARGET', `bad targetCpu: ${targetCpu}`)],
+    };
   }
   let parsed;
   try {
@@ -75,23 +79,43 @@ async function preflight({
       dependencies.push({ ...base, status: 'missing', reason: live?.__fetchError || 'unreadable' });
       continue;
     }
-    // Pin agreement mirrors the contract's early PinMismatch check.
-    if (live.nIn !== undefined && (live.nIn !== ref.inputs.length || (live.nOut !== undefined && live.nOut !== ref.nOut))) {
+    // Pin agreement mirrors the contract's early PinMismatch check. Coerce: fetch
+    // implementations may return numeric strings; only finite integers compare.
+    const liveIn = Number(live.nIn);
+    const liveOut = Number(live.nOut);
+    if (live.nIn !== undefined && (!Number.isInteger(liveIn) || liveIn !== ref.inputs.length
+      || (live.nOut !== undefined && (!Number.isInteger(liveOut) || liveOut !== ref.nOut)))) {
       failures.push(fail('PIN_MISMATCH', `${slot}: REF wants ${ref.inputs.length}/${ref.nOut}, live has ${live.nIn}/${live.nOut}`));
       dependencies.push({ ...base, status: 'pin-mismatch' });
       continue;
     }
     const record = await lookupRegistry(slot).catch((e) => ({ __lookupError: e?.message || String(e) }));
-    if (!record) {
-      failures.push(fail('UNREGISTERED', slot));
-      dependencies.push({ ...base, status: 'unregistered' });
+    if (!record || record.__lookupError) {
+      // Transport/lookup failure is NOT "unregistered": it must read as a failure
+      // callers can retry, never as a clean bill the router would contradict.
+      failures.push(record && record.__lookupError
+        ? fail('LOOKUP_FAILED', `${slot}: ${record.__lookupError}`)
+        : fail('UNREGISTERED', slot));
+      dependencies.push({ ...base, status: record && record.__lookupError ? 'lookup-failed' : 'unregistered', ...(record && record.__lookupError ? { reason: record.__lookupError } : {}) });
+      continue;
+    }
+    // priceWei conversion is fallible input: malformed records fail closed here,
+    // never as an uncaught throw that aborts the whole preflight.
+    let priceWei;
+    try {
+      if (typeof record.priceWei !== 'string') throw new Error('not a string');
+      priceWei = BigInt(record.priceWei).toString();
+      if (BigInt(priceWei) < 0n) throw new Error('negative');
+    } catch {
+      failures.push(fail('INVALID_PRICE', `${slot}: ${record.priceWei}`));
+      dependencies.push({ ...base, status: 'invalid-price' });
       continue;
     }
     const dep = {
       ...base,
       netlistHash: (live.netlistHash || '').toLowerCase(),
       payee: (record.payee || '').toLowerCase(),
-      priceWei: BigInt(record.priceWei).toString(),
+      priceWei,
       termsHash: (record.termsHash || '').toLowerCase(),
       hashVerified: true,
     };
@@ -108,14 +132,6 @@ async function preflight({
       failures.push(fail('MISSING_TERMS', slot));
       dep.status = 'missing-terms';
     } else {
-      try {
-        if (BigInt(dep.priceWei) < 0n) throw new Error('negative');
-      } catch {
-        failures.push(fail('INVALID_PRICE', `${slot}: ${record.priceWei}`));
-        dep.status = 'invalid-price';
-        dependencies.push(dep);
-        continue;
-      }
       dep.status = 'ok';
       totalPriceWei += BigInt(dep.priceWei);
     }

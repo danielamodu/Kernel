@@ -107,7 +107,24 @@ async function attributeLineage(lineage, { lookup }) {
       });
       continue;
     }
-    const record = await lookup(slot);
+    // A single flaky/unreachable registry read must not abort the whole join:
+    // isolate per slot so one failure degrades to 'unknown' with a reason.
+    let record;
+    try {
+      record = await lookup(slot);
+    } catch (e) {
+      dependencies.push({
+        slotKey: slot,
+        chainId: parts.chainId,
+        processor: parts.processor,
+        circuitId: parts.circuitId,
+        registered: false,
+        status: 'unknown',
+        reason: `lookup failed: ${e?.message || e}`,
+        liveNetlistHash: node.netlistHash,
+      });
+      continue;
+    }
     dependencies.push({
       slotKey: slot,
       chainId: parts.chainId,
@@ -122,12 +139,24 @@ async function attributeLineage(lineage, { lookup }) {
   }
 
   // Root's own registration (informational; root is never its own dependency).
+  // Lookup isolated like above: registry outage must not abort the join.
   const rootNode = byKey.get(lineage.root);
+  let rootRecord = null;
+  let rootLookupError = null;
+  if (rootNode && rootNode.netlistHash) {
+    try {
+      rootRecord = await lookup(lineage.root);
+    } catch (e) {
+      rootLookupError = e?.message || String(e);
+    }
+  }
   const rootRegistration = rootNode && rootNode.netlistHash
-    ? compareRegistration(
-      { chainId: rootNode.chainId, processor: rootNode.processor, circuitId: rootNode.circuitId, liveNetlistHash: rootNode.netlistHash },
-      await lookup(lineage.root),
-    )
+    ? (rootLookupError !== null
+      ? { registered: false, status: 'unknown', reason: `lookup failed: ${rootLookupError}` }
+      : compareRegistration(
+        { chainId: rootNode.chainId, processor: rootNode.processor, circuitId: rootNode.circuitId, liveNetlistHash: rootNode.netlistHash },
+        rootRecord,
+      ))
     : { registered: false, status: 'unknown', reason: 'root unreadable' };
 
   const byStatus = {};
